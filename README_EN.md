@@ -497,6 +497,20 @@ MYSEARCH_XAI_SEARCH_MODE=official
 MYSEARCH_XAI_API_KEY=xai-...
 ```
 
+### New Grok2API mode
+
+```env
+MYSEARCH_XAI_BASE_URL=http://127.0.0.1:18000/v1
+MYSEARCH_XAI_RESPONSES_PATH=/responses
+MYSEARCH_XAI_SEARCH_MODE=grok2api
+MYSEARCH_XAI_MODEL=grok-4.20-beta-latest-non-reasoning
+MYSEARCH_XAI_API_KEY=your-grok2api-client-key
+```
+
+New Grok2API uses the OpenAI-compatible `/v1/responses` data plane. Use a
+client key for search requests. Old `/social/search` and old admin token
+endpoints remain only for legacy compatible deployments.
+
 ### Compatible `/social/search` mode
 
 ```env

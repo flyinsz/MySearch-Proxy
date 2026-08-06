@@ -2312,7 +2312,7 @@ textarea:focus {
           <article class="hero-lane">
             <span class="hero-lane-kicker">Social</span>
             <strong>Social / X 做舆情</strong>
-            <p>兼容 grok2api 和 xAI-compatible 搜索，把 X 结果统一整理成 MySearch 可直接消费的结构。</p>
+            <p>适配新版 Grok2API/xAI Responses API，也保留旧 compatible 搜索，把 X 结果统一整理成 MySearch 可直接消费的结构。</p>
           </article>
         </section>
       </div>
@@ -2323,8 +2323,8 @@ textarea:focus {
     <section class="credit-strip">
       <div class="credit-copy">
         <span class="credit-kicker">Powered by grok2api</span>
-        <strong>Social / X 工作台当前默认调用 grok2api</strong>
-        <p>这部分能力基于 grok2api 提供的兼容接口和后台 token 状态完成接线。MySearch 的 Social / X 路由在这里向 grok2api 项目致谢，并保留它作为默认兼容实现来源。</p>
+        <strong>Social / X 工作台适配新版 Grok2API</strong>
+        <p>新版走 OpenAI 兼容 `/v1/responses` 数据面和 client key。旧 `/social/search` 与旧 admin token 状态仅用于 legacy compatible 部署。</p>
         <a
           class="credit-link mono"
           href="https://github.com/chenyme/grok2api"
@@ -2370,7 +2370,7 @@ textarea:focus {
         <div>
           <div class="settings-kicker">Console Settings</div>
           <h2 id="settings-title">设置</h2>
-          <p>在这里统一修改控制台密码，以及 Social / X 的 grok2api / compatible 配置。保存后会立即刷新当前控制台状态。</p>
+          <p>在这里统一修改控制台密码，以及 Social / X 的新版 Grok2API / legacy compatible 配置。保存后会立即刷新当前控制台状态。</p>
         </div>
         <button class="btn btn-soft" type="button" onclick="closeSettingsModal()">关闭</button>
       </div>
@@ -2395,7 +2395,7 @@ textarea:focus {
 
         <section class="settings-panel">
           <h3>Social / X / grok2api</h3>
-          <p>推荐优先填写 grok2api 后台地址和 `app_key`。如果你有自己的 compatible 网关，也可以在这里手动覆写上游 key、客户端 token 和高级路径。</p>
+          <p>新版 Grok2API 填 `/v1` Base URL、Responses 路径、模型和 client key。后台 app key、token 状态路径仅兼容旧版；也可手动填写 legacy 上游 key。</p>
           <form onsubmit="saveSocialSettings(event)">
             <div class="settings-fields">
               <div class="settings-field">

@@ -16,7 +16,7 @@ except ModuleNotFoundError:  # pragma: no cover - py310 fallback
 MODULE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = MODULE_DIR.parent
 AuthMode = Literal["bearer", "body"]
-XAISearchMode = Literal["official", "compatible"]
+XAISearchMode = Literal["official", "grok2api", "compatible"]
 MCPTransport = Literal["stdio", "sse", "streamable-http"]
 
 

@@ -88,6 +88,18 @@ MYSEARCH_EXA_API_KEY=exa-...
 MYSEARCH_XAI_API_KEY=xai-...
 ```
 
+新版 Grok2API 使用标准 `/v1/responses` 接口：
+
+```env
+MYSEARCH_XAI_BASE_URL=http://127.0.0.1:18000/v1
+MYSEARCH_XAI_RESPONSES_PATH=/responses
+MYSEARCH_XAI_SEARCH_MODE=grok2api
+MYSEARCH_XAI_MODEL=grok-4.20-beta-latest-non-reasoning
+MYSEARCH_XAI_API_KEY=your-grok2api-client-key
+```
+
+新版搜索凭据使用 client key。不要把旧版 `/v1/admin/*` token 接口当成搜索接口。
+
 没有 X / Social 时，下面这些仍然可用：
 
 - `web`

@@ -1976,8 +1976,8 @@ class MySearchClient:
         provider = self.config.xai
         if "x" not in sources:
             raise MySearchError(
-                "xai compatible mode only supports social/X queries; "
-                "use Tavily/Firecrawl for web search or switch to official xAI mode"
+                "xAI compatible mode only supports social/X queries; "
+                "use Tavily/Firecrawl for web search or switch to official or grok2api mode"
             )
 
         search_path = provider.path("social_search")
@@ -2876,7 +2876,7 @@ class MySearchClient:
                 raise MySearchError(
                     "xAI / Social search is not configured; MySearch can still use "
                     "Tavily + Firecrawl for web/docs/extract. Add "
-                    "MYSEARCH_XAI_API_KEY for official xAI, or configure a "
+                    "MYSEARCH_XAI_API_KEY for official xAI or Grok2API, or configure a "
                     "compatible /social/search gateway to enable mode='social'."
                 )
             if provider.name == "exa":

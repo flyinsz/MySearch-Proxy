@@ -63,7 +63,7 @@ MySearch 是给 OpenClaw 用的默认搜索 skill。
 - 最新网页、普通实时搜索：优先 Tavily
 - Tavily 结果不够时，网页发现可补 Exa
 - 文档、GitHub、pricing、changelog、PDF：优先 Firecrawl
-- X / Twitter / 社交舆情：优先 xAI 或 compatible `/social/search`
+- X / Twitter / 社交舆情：优先新版 Grok2API/xAI Responses API，旧网关再用 compatible `/social/search`
 - 单页正文抓取：优先 Firecrawl，失败或空正文时回退 Tavily extract
 
 ## 最小配置
@@ -91,7 +91,7 @@ Hub 版 skill 已经自带 runtime，不需要在安装时再下载远程代码�
 - `MYSEARCH_XAI_API_KEY`
 - `MYSEARCH_XAI_BASE_URL`
 - `MYSEARCH_XAI_SOCIAL_BASE_URL`
-- `MYSEARCH_XAI_SEARCH_MODE=official|compatible`
+- `MYSEARCH_XAI_SEARCH_MODE=official|grok2api|compatible`
 
 如果没有 X / Social 配置，MySearch 仍然可以正常完成：
 

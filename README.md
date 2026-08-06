@@ -294,7 +294,7 @@ MySearch 默认不是“所有问题都塞给一个 provider”。
 - 普通网页补充发现
   - 可回退 Exa
 - `social`
-  - 走 xAI 或兼容 `/social/search`
+  - 新版 Grok2API/xAI 走 `/v1/responses`，旧网关走兼容 `/social/search`
 - `extract_url`
   - 优先 Firecrawl，失败或正文为空时回退 Tavily extract
 - `research`
