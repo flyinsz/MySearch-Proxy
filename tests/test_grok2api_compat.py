@@ -5,6 +5,7 @@ import unittest
 
 from mysearch.clients import MySearchClient
 from mysearch.config import MySearchConfig
+from proxy import server as proxy_server
 
 
 class Grok2APICompatibilityTests(unittest.TestCase):
@@ -53,6 +54,35 @@ class Grok2APICompatibilityTests(unittest.TestCase):
                     os.environ.pop(name, None)
                 else:
                     os.environ[name] = value
+
+    def test_new_admin_accounts_map_to_social_stats(self) -> None:
+        stats = proxy_server.build_social_account_stats(
+            {
+                "data": {
+                    "items": [
+                        {
+                            "provider": "grok_web",
+                            "enabled": True,
+                            "authStatus": "active",
+                            "quotaWindows": [{"remaining": 7}, {"remaining": 30}],
+                        },
+                        {
+                            "provider": "grok_web",
+                            "enabled": False,
+                            "authStatus": "disabled",
+                            "quotaWindows": [],
+                        },
+                    ]
+                }
+            }
+        )
+        self.assertEqual(stats["token_total"], 2)
+        self.assertEqual(stats["token_normal"], 1)
+        self.assertEqual(stats["token_invalid"], 1)
+        self.assertEqual(stats["chat_remaining"], 37)
+        self.assertEqual(stats["pools"], [
+            {"pool": "grok_web", "count": 2, "active": 1, "cooling": 0, "invalid": 1},
+        ])
 
 
 if __name__ == "__main__":

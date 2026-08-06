@@ -2395,7 +2395,7 @@ textarea:focus {
 
         <section class="settings-panel">
           <h3>Social / X / grok2api</h3>
-          <p>新版 Grok2API 填 `/v1` Base URL、Responses 路径、模型和 client key。后台 app key、token 状态路径仅兼容旧版；也可手动填写 legacy 上游 key。</p>
+          <p>新版 Grok2API 填 `/v1` Base URL、Responses 路径、模型和 client key。后台适配使用管理员登录读取账号状态；旧版 app key 路径保留兼容。</p>
           <form onsubmit="saveSocialSettings(event)">
             <div class="settings-fields">
               <div class="settings-field">
@@ -2422,6 +2422,16 @@ textarea:focus {
                 <label for="settings-social-admin-app-key">grok2api app key</label>
                 <input type="password" id="settings-social-admin-app-key" placeholder="留空表示保持当前值">
                 <div class="hint" id="settings-social-admin-app-key-hint">未配置</div>
+              </div>
+              <div class="settings-field">
+                <label for="settings-social-admin-username">新版后台用户名</label>
+                <input type="text" id="settings-social-admin-username" placeholder="例如 admin">
+                <div class="hint" id="settings-social-admin-username-hint">未配置</div>
+              </div>
+              <div class="settings-field">
+                <label for="settings-social-admin-password">新版后台密码</label>
+                <input type="password" id="settings-social-admin-password" placeholder="留空表示保持当前值">
+                <div class="hint" id="settings-social-admin-password-hint">未配置</div>
               </div>
               <div class="settings-field">
                 <label for="settings-social-upstream-api-key">手动上游 API key</label>
@@ -2453,6 +2463,18 @@ textarea:focus {
                 <div class="settings-field">
                   <label for="settings-social-admin-tokens-path">Tokens Path</label>
                   <input type="text" id="settings-social-admin-tokens-path" placeholder="/v1/admin/tokens">
+                </div>
+                <div class="settings-field">
+                  <label for="settings-social-admin-login-path">新版 Login Path</label>
+                  <input type="text" id="settings-social-admin-login-path" placeholder="/api/admin/v1/auth/login">
+                </div>
+                <div class="settings-field">
+                  <label for="settings-social-admin-accounts-path">新版 Accounts Path</label>
+                  <input type="text" id="settings-social-admin-accounts-path" placeholder="/api/admin/v1/accounts">
+                </div>
+                <div class="settings-field">
+                  <label for="settings-social-admin-client-keys-path">新版 Client Keys Path</label>
+                  <input type="text" id="settings-social-admin-client-keys-path" placeholder="/api/admin/v1/client-keys">
                 </div>
                 <div class="settings-field full-width">
                   <label for="settings-social-cache-ttl-seconds">缓存秒数</label>
@@ -3041,17 +3063,26 @@ function fillSettingsForm(settings) {
   document.getElementById('settings-social-admin-verify-path').value = social.admin_verify_path || '/v1/admin/verify';
   document.getElementById('settings-social-admin-config-path').value = social.admin_config_path || '/v1/admin/config';
   document.getElementById('settings-social-admin-tokens-path').value = social.admin_tokens_path || '/v1/admin/tokens';
+  document.getElementById('settings-social-admin-login-path').value = social.admin_login_path || '/api/admin/v1/auth/login';
+  document.getElementById('settings-social-admin-accounts-path').value = social.admin_accounts_path || '/api/admin/v1/accounts';
+  document.getElementById('settings-social-admin-client-keys-path').value = social.admin_client_keys_path || '/api/admin/v1/client-keys';
   document.getElementById('settings-social-model').value = social.model || 'grok-4.1-fast';
   document.getElementById('settings-social-fallback-model').value = social.fallback_model || 'grok-4.1-fast';
   document.getElementById('settings-social-cache-ttl-seconds').value = String(social.cache_ttl_seconds || 60);
   document.getElementById('settings-social-fallback-min-results').value = String(social.fallback_min_results || 3);
 
   document.getElementById('settings-social-admin-app-key').value = '';
+  document.getElementById('settings-social-admin-username').value = '';
+  document.getElementById('settings-social-admin-password').value = '';
   document.getElementById('settings-social-upstream-api-key').value = '';
   document.getElementById('settings-social-gateway-token').value = '';
 
   document.getElementById('settings-social-admin-app-key-hint').textContent =
     describeConfiguredSecret(social.admin_app_key_masked, social.admin_app_key_configured);
+  document.getElementById('settings-social-admin-username-hint').textContent =
+    social.admin_username_configured ? '当前已配置，留空表示保持不变。' : '当前未配置。';
+  document.getElementById('settings-social-admin-password-hint').textContent =
+    social.admin_password_configured ? '当前已配置，留空表示保持不变。' : '当前未配置。';
   document.getElementById('settings-social-upstream-api-key-hint').textContent =
     describeConfiguredSecret(social.upstream_api_key_masked, social.upstream_api_key_configured);
   document.getElementById('settings-social-gateway-token-hint').textContent =
@@ -3936,6 +3967,9 @@ async function saveSocialSettings(event) {
     admin_verify_path: document.getElementById('settings-social-admin-verify-path').value.trim(),
     admin_config_path: document.getElementById('settings-social-admin-config-path').value.trim(),
     admin_tokens_path: document.getElementById('settings-social-admin-tokens-path').value.trim(),
+    admin_login_path: document.getElementById('settings-social-admin-login-path').value.trim(),
+    admin_accounts_path: document.getElementById('settings-social-admin-accounts-path').value.trim(),
+    admin_client_keys_path: document.getElementById('settings-social-admin-client-keys-path').value.trim(),
     model: document.getElementById('settings-social-model').value.trim(),
     fallback_model: document.getElementById('settings-social-fallback-model').value.trim(),
     cache_ttl_seconds: document.getElementById('settings-social-cache-ttl-seconds').value.trim(),
@@ -3943,10 +3977,14 @@ async function saveSocialSettings(event) {
   };
 
   const adminAppKey = document.getElementById('settings-social-admin-app-key').value.trim();
+  const adminUsername = document.getElementById('settings-social-admin-username').value.trim();
+  const adminPassword = document.getElementById('settings-social-admin-password').value.trim();
   const upstreamApiKey = document.getElementById('settings-social-upstream-api-key').value.trim();
   const gatewayToken = document.getElementById('settings-social-gateway-token').value.trim();
 
   if (adminAppKey) body.admin_app_key = adminAppKey;
+  if (adminUsername) body.admin_username = adminUsername;
+  if (adminPassword) body.admin_password = adminPassword;
   if (upstreamApiKey) body.upstream_api_key = upstreamApiKey;
   if (gatewayToken) body.gateway_token = gatewayToken;
 
