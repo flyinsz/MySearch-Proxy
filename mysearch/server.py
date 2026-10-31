@@ -2,13 +2,38 @@
 
 from __future__ import annotations
 
+import os
+import time
 from dataclasses import replace
 from typing import Literal
 
 from mcp.server.fastmcp import FastMCP
-
+from mcp.server.fastmcp.server import AuthSettings
 from mysearch.clients import MySearchClient
 from mysearch.config import MCPTransport, MySearchConfig
+
+
+class StaticTokenVerifier:
+    """Static Bearer-token verifier backed by MYSEARCH_MCP_AUTH_TOKENS.
+
+    Comma-separated token list; all tokens map to full-access scope.
+    Validates against tokens table values used by the proxy layer.
+    """
+
+    def __init__(self, tokens: list[str]) -> None:
+        self._tokens = {t.strip() for t in tokens if t.strip()}
+
+    async def verify_token(self, token: str):
+        if token not in self._tokens:
+            return None
+        from mcp.server.auth.provider import AccessToken
+
+        return AccessToken(
+            token=token,
+            client_id="mysearch-client",
+            scopes=["search", "extract", "research", "health"],
+            expires_at=int(time.time()) + 86400 * 365,
+        )
 
 
 def _ensure_list(value: str | list[str] | None) -> list[str] | None:
@@ -31,11 +56,27 @@ def _ensure_sources(
     return value
 
 
+def _load_auth_tokens() -> list[str]:
+    raw = os.environ.get("MYSEARCH_MCP_AUTH_TOKENS", "")
+    return [t.strip() for t in raw.split(",") if t.strip()]
+
+
 def build_mcp(config: MySearchConfig) -> tuple[MySearchClient, FastMCP]:
     client = MySearchClient(config)
+    auth_tokens = _load_auth_tokens()
+    token_verifier = StaticTokenVerifier(auth_tokens) if auth_tokens else None
+    auth_settings = None
+    if token_verifier is not None:
+        base_url = os.environ.get("MYSEARCH_MCP_AUTH_BASE_URL", f"http://{config.mcp_host}:{config.mcp_port}")
+        auth_settings = AuthSettings(
+            issuer_url=base_url,
+            resource_server_url=base_url,
+        )
     mcp = FastMCP(
         config.server_name,
         json_response=True,
+        token_verifier=token_verifier,
+        auth=auth_settings,
         host=config.mcp_host,
         port=config.mcp_port,
         mount_path=config.mcp_mount_path,
